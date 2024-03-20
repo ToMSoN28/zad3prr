@@ -2,6 +2,7 @@ from multiprocessing.managers import BaseManager
 from queue import Queue
 import sys
 from setCutter import SetCutter
+from setWorker import SetWorker
 
 class QueueManager(BaseManager): 
     pass
@@ -10,8 +11,11 @@ def main(ip, port, Afile, Xfile):
     A = read(Afile)
     X = read(Xfile)
     setCutter = SetCutter(A, X)
-    set_0 = setCutter.get_set_id(0)
+    set_0 = setCutter.get_set_worker_id(100,0)
     print(set_0)
+    setWorker = SetWorker()
+    o_set_0 = setWorker.calculate_n_set(set_0)
+    print(len(o_set_0))
     # QueueManager.register('in_queue')
     # m = QueueManager(address=(ip, int(port)), authkey=b'BostonCeltics')
     # m.connect()

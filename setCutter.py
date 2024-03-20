@@ -17,7 +17,7 @@ class SetCutter:
         return output
     
     def get_set_worker_id(self, worker_number, worker_id):
-        n = len(self.A[0])/worker_number
+        n = int(len(self.A[0])/worker_number)
         output = []
         for i in range(n*worker_id, n*(worker_id+1)):
             output.append(self.get_set_id(i))
