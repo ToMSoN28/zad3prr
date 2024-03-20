@@ -3,6 +3,7 @@ from queue import Queue
 import sys
 from setCutter import SetCutter
 from setWorker import SetWorker
+from setSumer import SetSumer
 
 class QueueManager(BaseManager): 
     pass
@@ -11,11 +12,17 @@ def main(ip, port, Afile, Xfile):
     A = read(Afile)
     X = read(Xfile)
     setCutter = SetCutter(A, X)
-    set_0 = setCutter.get_set_worker_id(100,0)
-    print(set_0)
+    setSumer = SetSumer(len(A[0]))
     setWorker = SetWorker()
-    o_set_0 = setWorker.calculate_n_set(set_0)
-    print(len(o_set_0))
+    for i in range(3):
+        set_n = setCutter.get_set_id(i)
+        o_set_n = setWorker.calculate_single_set(set_n)
+        print(o_set_n)
+        setSumer.add(o_set_n)
+    print(setSumer.result, len(setSumer.result))
+        
+    
+    
     # QueueManager.register('in_queue')
     # m = QueueManager(address=(ip, int(port)), authkey=b'BostonCeltics')
     # m.connect()
