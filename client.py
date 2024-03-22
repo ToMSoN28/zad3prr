@@ -8,27 +8,39 @@ from setSumer import SetSumer
 class QueueManager(BaseManager): 
     pass
 
-def main(ip, port, Afile, Xfile):
+def main(ip, port, Afile, Xfile, mode, worker_n=0):
     A = read(Afile)
     X = read(Xfile)
     setCutter = SetCutter(A, X)
     setSumer = SetSumer(len(A[0]))
-    setWorker = SetWorker()
-    for i in range(3):
-        set_n = setCutter.get_set_id(i)
-        o_set_n = setWorker.calculate_single_set(set_n)
-        print(o_set_n)
-        setSumer.add(o_set_n)
-    print(setSumer.result, len(setSumer.result))
+
+    
+    QueueManager.register('in_queue')
+    QueueManager.register('out_queue')
+    m = QueueManager(address=(ip, int(port)), authkey=b'BostonCeltics')
+    m.connect()
+    in_queue = m.in_queue()
+    out_queue = m.out_queue()
+    if mode == 'single':
+        for i in range(len(X)):
+            in_queue.put(setCutter.get_set_id(i))
+    elif mode == 'worker':
+        if worker_n == 0:
+            print ('wrong worker number')
+        else:
+            for i in range (worker_n):
+                in_queue.put(setCutter.get_set_worker_id(worker_n, i))
+    else:
+        print('Wrong mode!!! Options: single, worker')
         
+    #Jakieś oczekiwanie trzeba dodać  bo nie wiadomo jak szybko będą liczyć czy coś
     
+    while(not out_queue.empty()):
+        setSumer.add(out_queue.get())
     
-    # QueueManager.register('in_queue')
-    # m = QueueManager(address=(ip, int(port)), authkey=b'BostonCeltics')
-    # m.connect()
-    # queue = m.in_queue()
-    # queue.put('hello')
-    # print( queue.get() )
+    print(setSumer.result)
+            
+    
     
 def read(fname):
 	f = open(fname, "r")
