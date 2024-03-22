@@ -22,21 +22,28 @@ def main(ip, port, Afile, Xfile, mode, worker_n=0):
     in_queue = m.in_queue()
     out_queue = m.out_queue()
     if mode == 'single':
+        counter = len(X)
         for i in range(len(X)):
             in_queue.put(setCutter.get_set_id(i))
     elif mode == 'worker':
         if worker_n == 0:
             print ('wrong worker number')
         else:
+            counter = worker_n
             for i in range (worker_n):
                 in_queue.put(setCutter.get_set_worker_id(worker_n, i))
     else:
         print('Wrong mode!!! Options: single, worker')
         
-    #Jakieś oczekiwanie trzeba dodać  bo nie wiadomo jak szybko będą liczyć czy coś
+    # teraz już jesrt git i będzie na spojkojnie czekał
+    # doda wszyskie rzecy bo liczy i czeka na wszyskie odpowiedzi
     
-    while(not out_queue.empty()):
-        setSumer.add(out_queue.get())
+    while(True):
+        if (not out_queue.empty()):
+            setSumer.add(out_queue.get())
+            counter -= 1
+            if counter == 0:
+                break
     
     print(setSumer.result)
             
