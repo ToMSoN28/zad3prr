@@ -1,46 +1,42 @@
-from multiprocessing.managers import BaseManager
-from queue import Queue
 import sys
 from setCutter import SetCutter
 from setWorker import SetWorker
 from setSumer import SetSumer
+from queue_manager import QueueManagerClient
 
-class QueueManager(BaseManager): 
-    pass
+def main(ip, port, auth_key, Afile, Xfile, mode, worker_n=0):
+    worker_n_int = int(worker_n)
+    port_int = int(port)
+    manager = QueueManagerClient(ip, port_int, bytearray(auth_key, 'utf-8'))
+    manager.connect()
 
-def main(ip, port, Afile, Xfile, mode, worker_n=0):
     A = read(Afile)
     X = read(Xfile)
     setCutter = SetCutter(A, X)
     setSumer = SetSumer(len(A[0]))
 
-    
-    QueueManager.register('in_queue')
-    QueueManager.register('out_queue')
-    m = QueueManager(address=(ip, int(port)), authkey=b'BostonCeltics')
-    m.connect()
-    in_queue = m.in_queue()
-    out_queue = m.out_queue()
     if mode == 'single':
         counter = len(X)
         for i in range(len(X)):
-            in_queue.put(setCutter.get_set_id(i))
+            manager.in_queue().put(setCutter.get_set_id(i))
     elif mode == 'worker':
-        if worker_n == 0:
+        if worker_n_int == 0:
             print ('wrong worker number')
+            return 1
         else:
-            counter = worker_n
-            for i in range (worker_n):
-                in_queue.put(setCutter.get_set_worker_id(worker_n, i))
+            counter = worker_n_int
+            for i in range (worker_n_int):
+                manager.in_queue().put(setCutter.get_set_worker_id(worker_n_int, i))
     else:
         print('Wrong mode!!! Options: single, worker')
+        return 1
         
     # teraz już jesrt git i będzie na spojkojnie czekał
     # doda wszyskie rzecy bo liczy i czeka na wszyskie odpowiedzi
     
     while(True):
-        if (not out_queue.empty()):
-            setSumer.add(out_queue.get())
+        if (not manager.out_queue().empty()):
+            setSumer.add(manager.out_queue().get())
             counter -= 1
             if counter == 0:
                 break

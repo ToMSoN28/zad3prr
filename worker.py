@@ -1,34 +1,26 @@
-from multiprocessing.managers import BaseManager
+from queue_manager import QueueManagerClient
 from queue import Queue
 import sys
 from setWorker import SetWorker
 
-class QueueManager(BaseManager): 
-    pass
-
-def main(ip, port, mode):
-    QueueManager.register('in_queue')
-    QueueManager.register('out_queue')
-    m = QueueManager(address=(ip, int(port)), authkey=b'BostonCeltics')
-    m.connect()
-    in_queue = m.in_queue()
-    out_queue = m.out_queue()
+def main(ip : str, port : str, auth_key : str, mode : str):
+    port_int = int(port)
+    manager = QueueManagerClient(ip, port_int, bytearray(auth_key, 'utf-8'))
+    manager.connect()
     setWorker = SetWorker()
     if mode == 'single':
-        while (not in_queue.empty()):
-            single_input = in_queue.get()
+        while (not manager.in_queue().empty()):
+            single_input = manager.in_queue().get()
             single_ouptput = setWorker.calculate_single_set(single_input)
-            out_queue.put(single_ouptput)
-    elif mode == 'workers':
-        multi_input = in_queue.get()
+            manager.out_queue().put(single_ouptput)
+    elif mode == 'worker':
+        multi_input = manager.in_queue().get()
         multi_output = setWorker.calculate_n_set(multi_input)
-        out_queue.put(multi_output)
+        manager.out_queue().put(multi_output)
     else:
         print('Wrong mode!!! Options: single, worker')
         
     return 0
-        
-        
-        
-        
-        
+
+if __name__ == '__main__':
+    main(*sys.argv[1:])
