@@ -1,4 +1,5 @@
 import sys
+import time
 from setCutter import SetCutter
 from setWorker import SetWorker
 from setSumer import SetSumer
@@ -14,6 +15,7 @@ def main(ip, port, auth_key, Afile, Xfile, mode, worker_n=0):
     X = read(Xfile)
     setCutter = SetCutter(A, X)
     setSumer = SetSumer(len(A[0]))
+    s_time = time.time()
 
     if mode == 'single':
         counter = len(X)
@@ -40,8 +42,10 @@ def main(ip, port, auth_key, Afile, Xfile, mode, worker_n=0):
             counter -= 1
             if counter == 0:
                 break
+    e_time = time.time()
     
     print(setSumer.result)
+    print(e_time-s_time)
             
     
     
