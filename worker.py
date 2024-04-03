@@ -9,14 +9,18 @@ def main(ip : str, port : str, auth_key : str, mode : str):
     manager.connect()
     setWorker = SetWorker()
     if mode == 'single':
-        while (not manager.in_queue().empty()):
-            single_input = manager.in_queue().get()
-            single_ouptput = setWorker.calculate_single_set(single_input)
-            manager.out_queue().put(single_ouptput)
+        while (True):
+            if not manager.in_queue().empty():
+                single_input = manager.in_queue().get()
+                single_ouptput = setWorker.calculate_single_set(single_input)
+                manager.out_queue().put(single_ouptput)
     elif mode == 'worker':
-        multi_input = manager.in_queue().get()
-        multi_output = setWorker.calculate_n_set(multi_input)
-        manager.out_queue().put(multi_output)
+        while (True):
+            if not manager.in_queue().empty():
+                multi_input = manager.in_queue().get()
+                multi_output = setWorker.calculate_n_set(multi_input)
+                manager.out_queue().put(multi_output)
+                break
     else:
         print('Wrong mode!!! Options: single, worker')
         
