@@ -9,11 +9,14 @@ def main(ip : str, port : str, auth_key : str, mode : str):
     manager.connect()
     setWorker = SetWorker()
     if mode == 'single':
+        a = 1
         while (True):
             if not manager.in_queue().empty():
                 single_input = manager.in_queue().get()
                 single_ouptput = setWorker.calculate_single_set(single_input)
                 manager.out_queue().put(single_ouptput)
+                print(a)
+                a += 1
     elif mode == 'worker':
         while (True):
             if not manager.in_queue().empty():
